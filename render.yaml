@@ -5,7 +5,7 @@ services:
     plan: free
     repo: https://github.com/shyndaliu/shanyraqkz-backend-2023
     region: frankfurt
-    branch: main
+    branch: master
     envVars:
       - key: MONGO_URL
         sync: false
