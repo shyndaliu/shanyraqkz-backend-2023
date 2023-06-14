@@ -1,18 +1,10 @@
-from pydantic import BaseSettings
-
 from app.config import database
 
 from .adapters.jwt_service import JwtService
+from .adapters.s3_service import S3Service
 from .repository.repository import ShanyraksRepository
 
-
-class ShanyraksConfig(BaseSettings):
-    JWT_ALG: str = "HS256"
-    JWT_SECRET: str = "YOUR_SUPER_SECRET_STRING"
-    JWT_EXP: int = 10_800
-
-
-config = ShanyraksConfig()
+from ..auth.service import config
 
 
 class Service:
@@ -20,14 +12,17 @@ class Service:
         self,
         repository: ShanyraksRepository,
         jwt_svc: JwtService,
+        s3_service: S3Service,
     ):
         self.repository = repository
         self.jwt_svc = jwt_svc
+        self.s3_service = S3Service()
 
 
 def get_service():
     repository = ShanyraksRepository(database)
     jwt_svc = JwtService(config.JWT_ALG, config.JWT_SECRET, config.JWT_EXP)
+    s3_service = S3Service
 
-    svc = Service(repository, jwt_svc)
+    svc = Service(repository, jwt_svc, s3_service)
     return svc

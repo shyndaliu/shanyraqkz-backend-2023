@@ -1,11 +1,9 @@
 from datetime import datetime
 import random
-from fastapi import HTTPException, Response
+from fastapi import HTTPException
 
 from bson.objectid import ObjectId
 from pymongo.database import Database
-
-from ..utils.security import hash_password
 
 
 class ShanyraksRepository:
@@ -126,3 +124,32 @@ class ShanyraksRepository:
             )
             return
         raise HTTPException(status_code=404, detail="There is no such comment:(")
+
+    def add_media(self, id: str, user_id: str, urls: list):
+        shanyrak = self.database["shanyraks"].find_one({"_id": ObjectId(id)})
+        if shanyrak == None:
+            raise HTTPException(status_code=404, detail="There is no such shanyrak:(")
+        if str(shanyrak.get("user_id")) != str(user_id):
+            raise HTTPException(
+                status_code=403, detail="You can't add media to this shanyrak!"
+            )
+        for url in urls:
+            self.database["shanyraks"].update_one(
+                {"_id": ObjectId(id)}, {"$push": {"media": str(url)}}
+            )
+
+    def delete_media(self, id: str, user_id: str, input: dict):
+        shanyrak = self.database["shanyraks"].find_one({"_id": ObjectId(id)})
+        if shanyrak == None:
+            raise HTTPException(status_code=404, detail="There is no such shanyrak:(")
+        if str(shanyrak.get("user_id")) != str(user_id):
+            raise HTTPException(
+                status_code=403, detail="You can't delete media from this shanyrak!"
+            )
+        new_media = shanyrak["media"]
+        for element in input["media"]:
+            new_media.remove(element)
+        self.database["shanyraks"].update_one(
+            {"_id": ObjectId(id)},
+            {"$set": {"media": new_media}},
+        )
