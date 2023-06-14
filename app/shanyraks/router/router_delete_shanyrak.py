@@ -11,23 +11,12 @@ from . import router
 from .dependencies import parse_jwt_user_data
 
 
-class UpdateShanyraqRequest(AppModel):
-    type: str
-    price: int
-    address: str
-    area: float
-    rooms_count: int
-    description: str
-
-
-@router.patch("/{id}", status_code=200)
-def update_shanyraq_by_id(
+@router.delete("/{id}", status_code=200)
+def delete_shanyrak_by_id(
     id: str,
-    input: UpdateShanyraqRequest,
     jwt_data: JWTData = Depends(parse_jwt_user_data),
     svc: Service = Depends(get_service),
-) -> dict[str, str]:
-    user = svc.repository.update_shanyraq(
-        id=id, user_id=jwt_data.user_id, input=input.dict()
-    )
+):
+    svc.repository.delete_shanyrak(id=id, user_id=jwt_data.user_id)
+
     return Response(status_code=200)

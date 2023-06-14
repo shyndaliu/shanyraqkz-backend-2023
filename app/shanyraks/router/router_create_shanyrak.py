@@ -9,7 +9,7 @@ from ..adapters.jwt_service import JWTData
 from .dependencies import parse_jwt_user_data
 
 
-class CreateShanyraqRequest(AppModel):
+class CreateShanyrakRequest(AppModel):
     type: str
     price: int
     address: str
@@ -18,20 +18,20 @@ class CreateShanyraqRequest(AppModel):
     description: str
 
 
-class CreateShanyraqResponse(AppModel):
+class CreateShanyrakResponse(AppModel):
     id: str
 
 
 @router.post(
     "/",
-    response_model=CreateShanyraqResponse,
+    response_model=CreateShanyrakResponse,
 )
-def create_new_shanyraq(
-    input: CreateShanyraqRequest,
+def create_new_shanyrak(
+    input: CreateShanyrakRequest,
     jwt_data: JWTData = Depends(parse_jwt_user_data),
     svc: Service = Depends(get_service),
 ) -> dict[str, str]:
-    new_shanyraq_id = svc.repository.create_shanyraq(
-        user_id=jwt_data.user_id, shanyraq=input.dict()
+    new_shanyrak_id = svc.repository.create_shanyrak(
+        user_id=jwt_data.user_id, shanyrak=input.dict()
     )
-    return CreateShanyraqResponse(id=str(new_shanyraq_id))
+    return CreateShanyrakResponse(id=str(new_shanyrak_id))
