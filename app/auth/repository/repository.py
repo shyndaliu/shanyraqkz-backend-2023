@@ -61,7 +61,7 @@ class AuthRepository:
 
     def get_favorites(self, user_id: str):
         user = self.database["users"].find_one({"_id": ObjectId(user_id)})
-        if user["shanyraks"] == None:
+        if not ("shanyraks" in user):
             raise HTTPException(status_code=404, detail="You have no favorites!")
         return user["shanyraks"]
 

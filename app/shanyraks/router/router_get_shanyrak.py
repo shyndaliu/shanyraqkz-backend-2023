@@ -18,6 +18,7 @@ class GetShanyrakResponse(AppModel):
     description: str
     user_id: Any = Field(alias="user_id")
     media: list = []
+    location: object
 
 
 @router.get("/{id}", status_code=200, response_model=GetShanyrakResponse)
