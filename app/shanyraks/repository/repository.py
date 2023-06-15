@@ -10,7 +10,7 @@ class ShanyraksRepository:
     def __init__(self, database: Database):
         self.database = database
 
-    def create_shanyrak(self, user_id: str, shanyrak: dict):
+    def create_shanyrak(self, user_id: str, shanyrak: dict, coordinates: dict):
         payload = {
             "type": shanyrak["type"],
             "price": shanyrak["price"],
@@ -18,6 +18,10 @@ class ShanyraksRepository:
             "area": shanyrak["area"],
             "rooms_count": shanyrak["rooms_count"],
             "description": shanyrak["description"],
+            "location": {
+                "latitude": coordinates["lat"],
+                "longitude": coordinates["lng"],
+            },
             "created_at": datetime.utcnow(),
             "user_id": ObjectId(user_id),
         }
