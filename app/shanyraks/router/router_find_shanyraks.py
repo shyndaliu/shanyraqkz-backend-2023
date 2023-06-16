@@ -19,6 +19,9 @@ def find_shanyraks(
     rooms_count: int = 0,
     price_from: int = 0,
     price_until: int = 0,
+    latitude: float = None,
+    longitude: float = None,
+    radius: float = None,
     svc: Service = Depends(get_service),
 ):
     result = svc.repository.find_shanyraks(
@@ -28,5 +31,8 @@ def find_shanyraks(
         rooms_count=rooms_count,
         price_from=price_from,
         price_until=price_until,
+        latitude=latitude,
+        longitude=longitude,
+        radius=radius,
     )
     return result

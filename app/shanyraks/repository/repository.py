@@ -18,10 +18,7 @@ class ShanyraksRepository:
             "area": shanyrak["area"],
             "rooms_count": shanyrak["rooms_count"],
             "description": shanyrak["description"],
-            "location": {
-                "latitude": coordinates["lat"],
-                "longitude": coordinates["lng"],
-            },
+            "location": [coordinates["lng"], coordinates["lat"]],
             "created_at": datetime.utcnow(),
             "user_id": ObjectId(user_id),
         }
@@ -166,7 +163,24 @@ class ShanyraksRepository:
         rooms_count: int,
         price_from: int,
         price_until: int,
+        latitude: float,
+        longitude: float,
+        radius: float,
     ):
+        self.database["shanyraks"].create_index([("location", "2dsphere")])
+
+        location_query = {
+            "location": {
+                "$near": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitude, latitude],
+                    },
+                    "$maxDistance": radius,
+                }
+            }
+        }
+
         def prepare(item):
             item["_id"] = str(item["_id"])
             item.pop("created_at")
@@ -184,14 +198,22 @@ class ShanyraksRepository:
             filters.append({"price": {"$gt": price_from}})
         if price_until != 0:
             filters.append({"price": {"$lt": price_until}})
+
+        if latitude != None or longitude != None or radius != None:
+            if (latitude != None and longitude != None and radius != None) == False:
+                raise HTTPException(
+                    status_code=400,
+                    detail="All 3 fields (lng, lat, rad) should be filled",
+                )
+            filters.append(location_query)
+
         result = []
         objects = (
             self.database["shanyraks"].find({"$and": filters}).limit(limit).skip(offset)
         )
+        total = self.database["shanyraks"].count_documents({"$and": filters})
+
         for item in objects:
             result.append(item)
-        total = self.database["shanyraks"].count_documents({"$and": filters})
-        print(result)
         result = list(map(prepare, result))
-        print(result)
         return {"total": total, "objects": result}
