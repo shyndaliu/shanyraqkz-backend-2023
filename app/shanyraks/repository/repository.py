@@ -157,3 +157,41 @@ class ShanyraksRepository:
             {"_id": ObjectId(id)},
             {"$set": {"media": new_media}},
         )
+
+    def find_shanyraks(
+        self,
+        limit: int,
+        offset: int,
+        type_of: str,
+        rooms_count: int,
+        price_from: int,
+        price_until: int,
+    ):
+        def prepare(item):
+            item["_id"] = str(item["_id"])
+            item.pop("created_at")
+            item.pop("user_id")
+            if "comments" in item:
+                item.pop("comments")
+            return item
+
+        filters = [{}]
+        if type_of != "":
+            filters.append({"type": type_of})
+        if rooms_count != 0:
+            filters.append({"rooms_count": rooms_count})
+        if price_from != 0:
+            filters.append({"price": {"$gt": price_from}})
+        if price_until != 0:
+            filters.append({"price": {"$lt": price_until}})
+        result = []
+        objects = (
+            self.database["shanyraks"].find({"$and": filters}).limit(limit).skip(offset)
+        )
+        for item in objects:
+            result.append(item)
+        total = self.database["shanyraks"].count_documents({"$and": filters})
+        print(result)
+        result = list(map(prepare, result))
+        print(result)
+        return {"total": total, "objects": result}
